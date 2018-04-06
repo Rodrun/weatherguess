@@ -1,13 +1,14 @@
+"""Collect data and train the neural network.
+"""
 from city import get_all_weather
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-k", "--key",
     type=str,
-    help="weatherbit.io API key.")
+    help="openweathermap.org API key.")
 parser.add_argument("-c", "--collect",
     type=str,
-    default="data/world-cities.csv",
     help="collect weather data from given cities list file path")
 parser.add_argument("-t", "--train",
     type=str,
@@ -18,5 +19,5 @@ args = parser.parse_args()
 # Collect
 if args.collect and args.key:
     c = get_all_weather(args.key, cities_path=args.collect)
-    print("TOTAL FETCHES: " + c)
+    print("TOTAL FETCHES: {}".format(c))
 
