@@ -7,6 +7,10 @@ import argparse
 import conditions
 
 
+COLUMNS = ("condition", "temperature", "wind_speed", "relative_humidity",
+    "pressure")
+
+
 def verify_line(line: str, no: int, CONDITIONS: set):
     """
     Verify if the given line is copmliant to the training data format.

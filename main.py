@@ -4,6 +4,7 @@ import argparse
 import traceback
 
 from city import get_all_weather
+from model import Model
 import conditions
 import verify
 
@@ -29,19 +30,22 @@ parser.add_argument("--get-conditions",
     help="get all the weather conditions present in training data file")
 parser.add_argument("-t", "--train",
     type=str,
-    metavar="training",
+    metavar="TRAINING",
     help="train the model with given training data file path")
+parser.add_argument("--seed",
+    type=int,
+    help="Set the random generator seed")
 args = parser.parse_args()
-# In order: collect, verify, train, evaluate?, predict
-
 
 # Collect
 if args.collect and args.key:
     c = get_all_weather(args.key, cities_path=args.collect)
     print("TOTAL FETCHES: {}".format(c))
     quit()
-elif False:
-    pass
+elif args.train: # Train the NN
+    mod = Model(training=args.train,
+        seed=7 if not args.seed else args.seed)
+    mod.setup()
 else:
     # Get conditions
     if args.get_conditions:
