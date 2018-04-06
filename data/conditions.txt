@@ -1,0 +1,13 @@
+Thunderstorm
+Squall
+Haze
+Smoke
+Rain
+Dust
+Clear
+Mist
+Snow
+Clouds
+Drizzle
+Fog
+Sand
