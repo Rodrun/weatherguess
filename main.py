@@ -34,7 +34,16 @@ parser.add_argument("-t", "--train",
     help="train the model with given training data file path")
 parser.add_argument("--seed",
     type=int,
+	default=7,
     help="Set the random generator seed")
+parser.add_arugment("--epochs",
+	type=int,
+	default=150,
+	help="number of epochs for training")
+parser.add_argument("--batch-size",
+	type=int,
+	default=10,
+	help="batch size for training")
 args = parser.parse_args()
 
 # Collect
@@ -43,9 +52,10 @@ if args.collect and args.key:
     print("TOTAL FETCHES: {}".format(c))
     quit()
 elif args.train: # Train the NN
-    mod = Model(training=args.train,
-        seed=7 if not args.seed else args.seed)
-    mod.setup()
+    mod = Model(training=args.train, seed=args.seed)
+    mod.train(training=args.train,
+		batch_size=args.batch_size,
+		epochs=args.epochs)
 else:
     # Get conditions
     if args.get_conditions:
