@@ -6,31 +6,32 @@ condition,temperature,wind speed,relative humidity,pressure
 import argparse
 import conditions
 
-
 COLUMNS = ("condition", "temperature", "wind_speed", "relative_humidity",
-    "pressure")
+           "pressure")
 
 
-def verify_line(line: str, no: int, CONDITIONS: set):
+def verify_line(line: str, no: int, conds: set):
     """
-    Verify if the given line is copmliant to the training data format.
+    Verify if the given line is compliant to the training data format.
     :param line: Line string.
     :param no: Line number.
-    :param CONDITIONS: Available weather condition strings.
+    :param conds: Available weather condition strings.
     :return: Faulty line number, otherwise None.
     """
+    if conds is None:
+        return None
     # Test 1: has the correct amount of values? (5)
     split = line.split(",")
     if len(split) != 5:
         return no
     else:
         # Test 2: each value the right type?
-        if split[0].lower() not in CONDITIONS: # Must be condition
+        if split[0].lower() not in conds:  # Must be condition
             return no
-        for i in range(1, len(split)): # The rest of the values
+        for i in range(1, len(split)):  # The rest of the values
             try:
                 float(split[i])
-            except ValueError: # Must be numbers
+            except ValueError:  # Must be numbers
                 return no
     return None
 
@@ -42,14 +43,14 @@ def verify_file(path: str, cond: set):
     :param cond: Set of weather conditions available.
     """
     faulty = []
-    record = ""
+    record = None
     with open(path) as f:
         count = 1
         # Read
         record = f.readlines()
         for line in f:
             ver = verify_line(line, count, cond)
-            if ver != None:
+            if ver is not None:
                 faulty.push(ver)
             count += 1
 
@@ -67,4 +68,3 @@ def verify_file(path: str, cond: set):
                     f.write(line)
                 if current_index < len(faulty):
                     count += 1
-

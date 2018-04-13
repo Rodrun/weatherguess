@@ -16,7 +16,7 @@ import sys
 
 
 def get_all_weather(key, cities_path, out=sys.stdout,
-    err=sys.stderr, flush=True):
+                    err=sys.stderr, flush=True):
     """
     Get the current weather data of given cities file and print immediately
     to given output.
@@ -35,20 +35,20 @@ def get_all_weather(key, cities_path, out=sys.stdout,
             # Process weather data
             if init_json != None:
                 try:
-	                weather_parent = init_json["weather"][0]
+                    weather_parent = init_json["weather"][0]
                 except KeyError:
                     continue
                 if "main" not in weather_parent:
                     print("no main, skip", flush=True)
-                    continue # This dataset is useless; skip
+                    continue  # This dataset is useless; skip
                 else:
                     weather = weather_parent["main"]
 
                 main_parent = init_json["main"]
-                if "pressure" not in main_parent\
-                    or "temp" not in main_parent:
+                if "pressure" not in main_parent \
+                        or "temp" not in main_parent:
                     print("Doesnt have press or temp", flush=True)
-                    continue # Also useless; skip
+                    continue  # Also useless; skip
                 else:
                     pressure = main_parent["pressure"]
                     temperature = main_parent["temp"]
@@ -92,9 +92,9 @@ def format_training_line(weather, temp, windspeed, humid, pressure) -> str:
     :param humid: Relative humidity percentage.
     :param pressure: Pressure.
     """
-    return ",".join( # Convert each value into a string to join
-        [str(x) for x in\
-            [weather, temp, windspeed, humid, pressure]])
+    return ",".join(  # Convert each value into a string to join
+        [str(x) for x in \
+         [weather, temp, windspeed, humid, pressure]])
 
 
 def format_request_url(cid, key, unit="metric") -> str:
@@ -104,6 +104,5 @@ def format_request_url(cid, key, unit="metric") -> str:
     :param key: API Key.
     :return: Formatted URL string.
     """
-    return "http://api.openweathermap.org/data/2.5/weather?id={}&units={}&APPID={}"\
+    return "http://api.openweathermap.org/data/2.5/weather?id={}&units={}&APPID={}" \
         .format(cid, unit, key)
-

@@ -1,20 +1,18 @@
 """The model to be trained
 """
-from keras.models import Sequential
-from keras.layers import Dense
 import numpy
+from keras.layers import Dense, Dropout
+from keras.models import Sequential
+from keras.utils import to_categorical
 
+from conditions import find_from_iterable, to_dict
 from verify import COLUMNS
 
 
-class Model:
+class WeatherGuessModel:
     """
     Set up and use the model for training/evaluation...
     """
-    __model = None # Keras model
-    __x = None # Input
-    __y = None # Output
-
 
     def __init__(self, training: str, seed: int):
         """
@@ -22,51 +20,74 @@ class Model:
         :param training: Path to training data file.
         """
         numpy.random.seed(seed)
-        setup()
+        self.training = training
 
-
-    def setup(self):
+    def _setup(self):
         """
         Build and compile the Keras model.
         """
         print("Setting up model..")
         # Build model
-        __model = Sequential()
-        __model.add(Dense(6, input_dim=5, activation="relu"))
-        __model.add(Dense(4, activation="relu"))
-        __model.add(Dense(1, activation="softmax"))
+        self.model = Sequential()
+        self.model.add(Dense(100, activation="relu", input_shape=(1,)))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(50, activation="relu"))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(50, activation="relu"))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(13, activation="softmax"))
+        self.model.summary()
         # Compile model
         print("Compiling model...")
-        __model.compile(loss="categorical_crossentropy",
-            optimizer="adam",
-            metrics=["accuracy"])
+        self.model.compile(loss="categorical_crossentropy",
+                           optimizer="rmsprop",
+                           metrics=["accuracy"])
 
-
-    def get_variables(self, training: str):
-        """
-        Get the x (input) and y (output) from training data.
-        :param training: Path to training data file.
-        :return: X and Y.
-        """
-        data = numpy.genfromtxt(training,
-            delimiter=",",
-            dtype=None,
-            names=COLUMNS)
-        # Assign to input/output variables
-        y = data[COLUMNS[0]] # Weather condition is our output
-        x = data[list(COLUMNS[1::])] # Every other field is input
-        return x, y
-
-
-    def train(self, training: str, epochs=150, batch_size=10):
+    def _train(self, x, y, epochs=150, batch_size=32):
         """
         Train the model.
+        :param x: Input variable.
+        :param y: Output variable.
         :param epochs:
         :param batch_size:
-        :param training: Path to training data file.
         """
-        # Read data
-        x, y = get_variables(training)
         # Fit
-        __model.fit(x, y, epochs=epochs, batch_size=batch_size)
+        self.model.fit(x, y,
+                       epochs=epochs,
+                       batch_size=batch_size,
+                       verbose=1)
 
+    def perform(self, epochs, batch_size):
+        """
+        Train and evaluate the model.
+        """
+        x, y = _get_variables(self.training)
+        print("x = {}".format(x), "\ny = {}".format(y))
+        print("x input shape: {}".format(x.shape))
+        print("y output shape: {}".format(y.shape))
+        self._setup()
+        self._train(x, y, epochs, batch_size)
+
+
+def _get_variables(training: str):
+    """
+    Get the x (input) and y (output) from training data.
+    :param training: Path to training data file.
+    :return: X and Y.
+    """
+    data = numpy.genfromtxt(training,
+                            delimiter=",",
+                            dtype=("|U18", numpy.float64, numpy.float64, numpy.float64, numpy.float64),
+                            names=COLUMNS,
+                            encoding=None)
+    # Assign to input/output variables
+    x = data[list(COLUMNS[1::])]  # Every other field is input
+    pre_y = data[COLUMNS[0]]  # Weather condition is our output (first index)
+
+    # Encoding for y
+    all_conds = to_dict(find_from_iterable(set(pre_y)))
+    print("all_conds = ", all_conds)
+    y = [all_conds[item] for item in pre_y]
+    y = to_categorical(y, num_classes=len(all_conds))
+    # y.reshape((1,))
+    return x, y
