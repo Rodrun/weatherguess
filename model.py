@@ -29,17 +29,22 @@ class WeatherGuessModel:
         print("Setting up model..")
         # Build model
         self.model = Sequential()
-        self.model.add(Dense(100, activation="relu", input_shape=(1,)))
+        self.model.add(Dense(100, activation="relu", input_shape=(4,)))
         self.model.add(Dropout(0.5))
         self.model.add(Dense(50, activation="relu"))
+        self.model.add(Dropout(0.5))
+        self.model.add(Dense(360, activation="relu"))
         self.model.add(Dropout(0.5))
         self.model.add(Dense(50, activation="relu"))
         self.model.add(Dropout(0.5))
         self.model.add(Dense(13, activation="softmax"))
+
         self.model.summary()
-        # Compile model
+        self.model.save("weatherguess.h5")
+        # plot_model(self.model, to_file="weatherguess_model.png")
+
         print("Compiling model...")
-        self.model.compile(loss="categorical_crossentropy",
+        self.model.compile(loss="sparse_categorical_crossentropy",
                            optimizer="rmsprop",
                            metrics=["accuracy"])
 
@@ -52,7 +57,7 @@ class WeatherGuessModel:
         :param batch_size:
         """
         # Fit
-        self.model.fit(x, y,
+        return self.model.fit(x, y,
                        epochs=epochs,
                        batch_size=batch_size,
                        verbose=1)
@@ -66,7 +71,7 @@ class WeatherGuessModel:
         print("x input shape: {}".format(x.shape))
         print("y output shape: {}".format(y.shape))
         self._setup()
-        self._train(x, y, epochs, batch_size)
+        results = self._train(x, y, epochs, batch_size)
 
 
 def _get_variables(training: str):
@@ -81,13 +86,13 @@ def _get_variables(training: str):
                             names=COLUMNS,
                             encoding=None)
     # Assign to input/output variables
-    x = data[list(COLUMNS[1::])]  # Every other field is input
+    pre_x = data[list(COLUMNS[1::])]  # Every other field is input
     pre_y = data[COLUMNS[0]]  # Weather condition is our output (first index)
 
-    # Encoding for y
+    # Formatting/encoding/etc
     all_conds = to_dict(find_from_iterable(set(pre_y)))
     print("all_conds = ", all_conds)
     y = [all_conds[item] for item in pre_y]
-    y = to_categorical(y, num_classes=len(all_conds))
-    # y.reshape((1,))
-    return x, y
+    # y = to_categorical(y, num_classes=len(all_conds))
+    x = [list(nx) for nx in pre_x]
+    return numpy.array(x), numpy.array(y)

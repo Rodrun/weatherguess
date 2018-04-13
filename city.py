@@ -1,10 +1,7 @@
 """Collect city and weather data of respective cities.
 
-Uses (included in repository):
-data/city.json.zip
-
 Process:
-1. Read cities ID list.
+1. Read cities openweathermap ID list file.
 2. Request weather JSON data from openweathermap.org
 3. Store/print significant weather data.
 
