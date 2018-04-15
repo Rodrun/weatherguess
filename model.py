@@ -30,13 +30,10 @@ class WeatherGuessModel:
         # Build model
         self.model = Sequential()
         self.model.add(Dense(100, activation="relu", input_shape=(4,)))
-        self.model.add(Dropout(0.5))
-        self.model.add(Dense(50, activation="relu"))
-        self.model.add(Dropout(0.5))
-        self.model.add(Dense(360, activation="relu"))
-        self.model.add(Dropout(0.5))
-        self.model.add(Dense(50, activation="relu"))
-        self.model.add(Dropout(0.5))
+        for i in range(0, 3):
+            self.model.add(Dropout(0.5))
+            self.model.add(Dense(7, activation="relu"))
+            self.model.add(Dropout(0.5))
         self.model.add(Dense(13, activation="softmax"))
 
         self.model.summary()

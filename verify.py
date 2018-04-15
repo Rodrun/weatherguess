@@ -6,8 +6,7 @@ condition,temperature,wind speed,relative humidity,pressure
 import argparse
 import conditions
 
-COLUMNS = ("condition", "temperature", "wind_speed", "relative_humidity",
-           "pressure")
+from collection import COLUMNS
 
 
 def verify_line(line: str, no: int, conds: set):
@@ -51,7 +50,7 @@ def verify_file(path: str, cond: set):
         for line in f:
             ver = verify_line(line, count, cond)
             if ver is not None:
-                faulty.push(ver)
+                faulty.append(ver)
             count += 1
 
     if len(faulty) > 0:
@@ -68,3 +67,12 @@ def verify_file(path: str, cond: set):
                     f.write(line)
                 if current_index < len(faulty):
                     count += 1
+
+
+def format_line(stuff) -> str:
+    """
+    Format a training line.
+    :param stuff: Iterable.
+    :return: String of elements in stuff separated by commas.
+    """
+    return ",".join(stuff)

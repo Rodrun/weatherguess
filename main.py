@@ -4,7 +4,8 @@ import argparse
 import traceback
 import sys
 
-from city import get_all_weather
+from city import format_request_url, get_weather
+from collection import Collection
 from model import WeatherGuessModel
 import conditions
 import verify
@@ -48,8 +49,15 @@ args = parser.parse_args()
 
 # Collect
 if args.collect and args.key:
-    get_all_weather(args.key, cities_path=args.collect)
-    sys.exit(0)
+    # get_all_weather(args.key, cities_path=args.collect)
+    # Read city ID list file
+    with open(args.collect) as f:
+        collector = Collection()
+        for cid in f:
+            url = format_request_url(cid.rstrip(), args.key)
+            wdat = get_weather(url)
+            data = [str(x) for x in collector.get_weather(wdat)]
+            print(verify.format_line(data), flush=True)
 elif args.train:  # Train the NN
     mod = WeatherGuessModel(training=args.train, seed=args.seed)
     mod.perform(batch_size=args.batch_size, epochs=args.epochs)
